@@ -1,18 +1,16 @@
-[project]
+[tool.poetry]
 name = "llama-sentiment-analysis"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "nirbenzikri",email = "nir.benzikri@tensorleap.ai"}
-]
-
+authors = ["Idan <idan@idan.com>"]
 readme = "README.md"
-requires-python = ">=3.10,<3.11"
-dependencies = [
-    "onnx2kerastl (>=0.0.165,<0.0.166)",
-    "transformers (>=4.52.4,<5.0.0)"
-]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.11"
+onnx2kerastl = "0.0.165"
+transformers = "4.52.4"
+
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
