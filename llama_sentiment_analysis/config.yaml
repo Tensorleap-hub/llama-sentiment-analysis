@@ -1,0 +1,24 @@
+cache_dir: "../tensorleap/data/glue_sst/"
+
+train_size: 500
+val_size: 200
+test_size: 100
+
+ul_size: 1500
+
+max_length: 512
+
+labels:
+  - "Positive"
+  - "Negative"
+  - "Neutral"
+
+
+"Negative": 0
+"Positive": 1,
+"Neutral": -1,
+
+
+special_token_id: -100
+CLS_ID: 101
+SEP_ID: 102

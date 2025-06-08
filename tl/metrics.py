@@ -6,10 +6,7 @@ import tensorflow as tf
 from code_loader.contract.datasetclasses import ConfusionMatrixElement
 from code_loader.contract.enums import ConfusionMatrixValue
 
-from NER.config import CONFIG
-from NER.utils.metrics import mask_one_hot_labels, transform_prediction
-from NER.ner import map_label_idx_to_cat
-
+from llama_sentiment_analysis.config import CONFIG
 
 #
 # def confusion_matrix_tl(ground_truth: tf.Tensor, prediction: tf.Tensor):

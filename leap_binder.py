@@ -6,11 +6,10 @@ from code_loader.contract.datasetclasses import PreprocessResponse
 from code_loader.inner_leap_binder.leapbinder_decorators import (tensorleap_preprocess, tensorleap_unlabeled_preprocess,
                                                                  tensorleap_input_encoder, tensorleap_gt_encoder)
 
-from NER.dataset import load_data, downsample_hf_dataset
-from NER.utils.metrics import *
-from tl.metadata_helpers import *
+from llama_sentiment_analysis.dataset import load_data, downsample_hf_dataset
+from llama_sentiment_analysis.utils.metrics import *
 from tl.visualizers import *
-
+from llama_sentiment_analysis.dataset import get_dataset_label_map
 
 @tensorleap_preprocess()
 def preprocess_func() -> List[PreprocessResponse]:
@@ -62,22 +61,22 @@ def input_encoder(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
 
 @tensorleap_input_encoder(name="input_ids")
 def input_ids(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
-    inputs = input_encoder(idx, preprocess).data
-    inputs = inputs["input_ids"][0]
+    inputs = input_encoder(idx, preprocess)
+    inputs = inputs["input_ids"]
     return inputs.numpy().astype(np.float32)
 
 
-@tensorleap_input_encoder(name="input_type_ids")
-def input_type_ids(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
-    inputs = input_encoder(idx, preprocess).data
-    inputs = inputs["token_type_ids"][0]
+@tensorleap_input_encoder(name="position_ids")
+def position_ids(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
+    inputs = input_encoder(idx, preprocess)
+    inputs = inputs["position_ids"]
     return inputs.numpy().astype(np.float32)
 
 
 @tensorleap_input_encoder(name="attention_mask")
 def input_attention_mask(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
-    inputs = input_encoder(idx, preprocess).data
-    inputs = inputs["attention_mask"][0]
+    inputs = input_encoder(idx, preprocess)
+    inputs = inputs["attention_mask"]
     return inputs.numpy().astype(np.float32)
 
 
@@ -86,11 +85,13 @@ def input_attention_mask(idx: int, preprocess: PreprocessResponse) -> np.ndarray
 @tensorleap_gt_encoder(name="attention_mask")
 def gt_encoder(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
     tokenized_inputs = input_encoder(idx, preprocess)   # get tokenized labels
-    labels = tokenized_inputs.data["labels"]
-    gt_tensor_one_hot = tf.one_hot(labels, depth=len(CONFIG["labels"])).numpy()
-    return gt_tensor_one_hot[0]
-
-
+    labels = tokenized_inputs["labels"]
+    label_map = get_dataset_label_map()
+    label_ids_map = get_labels_ids_map()
+    text_labels = [label_map[label] for label in labels]
+    token_id_label = [label_ids_map[text_label] for text_label in text_labels]
+    # gt_tensor_one_hot = tf.one_hot(token_id_label, depth=get_vocab_size()).numpy()
+    return np.array(token_id_label).astype(np.float32)
 
 
 if __name__ == "__main__":

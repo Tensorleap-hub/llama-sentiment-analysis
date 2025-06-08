@@ -15,9 +15,7 @@ jet = plt.get_cmap("jet")
 cNorm = colors.Normalize(vmin=0, vmax=1)
 scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
 
-from NER.ner import *
-from NER.utils.ner import *
-from tl.metadata_helpers import *
+from llama_sentiment_analysis.llama import *
 from tl.tl_utils import mark_start_of_instance
 
 # TODO: fix take fron the mask vis
@@ -168,7 +166,7 @@ def loss_visualizer(input_ids: np.ndarray, ground_truth: np.ndarray, prediction:
     input_ids = input_ids[mask]
     text_tokens = decode_token_ids(input_ids)
 
-    prediction = transform_prediction(prediction[None, ...])[0]
+    # prediction = transform_prediction(prediction[None, ...])[0]
     # cut padded tokens
     prediction = prediction[mask]
     ground_truth = ground_truth[mask]
