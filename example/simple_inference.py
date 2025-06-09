@@ -10,7 +10,7 @@ def simple_inference():
     text = "i love this movie!"
 
     keras_inputs = tokenize_sentence(tokenizer, text)
-
+    keras_inputs = {k: tf.expand_dims(v, axis=0) for k, v in keras_inputs.items()}
     model = tf.keras.models.load_model('../model/llama_32_1b_inst.h5')
     # --------------------------------- Evaluating Inference -------------------------------------
     outputs = model(keras_inputs)

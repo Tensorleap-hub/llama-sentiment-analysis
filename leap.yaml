@@ -1,5 +1,5 @@
 codeIntegrationId: 66d0674ae649aecdcc68acaf
-projectId: 66c20d3c91f772f9177f5f08
+projectId: 68468b221fdb155299f3761f
 secretId: ""
 entryFile: leap_binder.py
 include:
@@ -10,3 +10,4 @@ include:
     - leap_binder.py
     - leap_test.py
     - leap_custom_test.py
+pythonVersion: py39
