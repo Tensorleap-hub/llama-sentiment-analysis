@@ -1,13 +1,16 @@
-codeIntegrationId: 66d0674ae649aecdcc68acaf
-projectId: 68468b221fdb155299f3761f
+codeIntegrationId: 684692771fdb155299f3766d
+projectId: 6846c1b1dac141340761ee74
 secretId: ""
 entryFile: leap_binder.py
 include:
-    - NER/utils/*.py
-    - NER/*.py
-    - NER/*.yaml
+    - llama_sentiment_analysis/utils/*.py
+    - llama_sentiment_analysis/*.py
+    - llama_sentiment_analysis/*.yaml
+    - llama_sentiment_analysis/model/*.json
+    - llama_sentiment_analysis/model/chat_template.jinja
     - tl/*.py
     - leap_binder.py
     - leap_test.py
     - leap_custom_test.py
+    - requirements.txt
 pythonVersion: py39

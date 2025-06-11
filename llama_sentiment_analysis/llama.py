@@ -2,11 +2,11 @@ from typing import List
 import numpy as np
 import tensorflow as tf
 from transformers import AutoTokenizer
-
+import os
 from code_loader.inner_leap_binder.leapbinder_decorators import tensorleap_custom_loss
 
 from llama_sentiment_analysis.config import CONFIG
-from llama_sentiment_analysis.utils.tokenizer_utils import tokenize_sentence
+from llama_sentiment_analysis.utils.tokenizer_utils import tokenize_sentence, tokenize_sentence_reg
 
 model_label2id = {"positive": 1,
                     "negative": 0
@@ -18,7 +18,10 @@ map_idx_to_label = dict(enumerate(CONFIG["labels"]))
 
 model_labels_to_ds_label = {0: "negative", 1: "positive"}
 
-tokenizer = AutoTokenizer.from_pretrained("model")
+# tokenizer = AutoTokenizer.from_pretrained("llama-sentiment-analysis/llama_sentiment_analysis/model")
+dir_path = os.path.dirname(os.path.abspath(__file__))
+tokenizer_path = os.path.join(dir_path, 'model')
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 tokenizer.pad_token = tokenizer.eos_token
 
 def map_model_to_ds_labels(predicted_labels):
@@ -38,6 +41,12 @@ def tokenize_and_align_labels(examples):
     tokenized_inputs = tokenize_sentence(tokenizer, sentence[0])
     tokenized_inputs["labels"] = label
     return tokenized_inputs
+
+def get_label_from_prediction(attention_mask, prediction):
+    last_token_index = np.where(attention_mask[0] == 1)[0][-1]
+    pred_token_id = prediction[:, last_token_index, :]
+    pred_token_text = tokenizer.convert_ids_to_tokens(int(np.argmax(pred_token_id[0])))
+    return pred_token_id, pred_token_text
 
 def get_labels_ids_map():
     labels_to_ids_dict = {}
@@ -133,6 +142,9 @@ def CE_loss(ground_truth: np.ndarray, prediction: np.ndarray) -> np.ndarray:
     # loss_val = tf.reduce_mean(loss_val, axis=1)
     return loss_val.numpy()
 
+@tensorleap_custom_loss(name="dummy_loss")
+def dummy_loss(ground_truth: np.ndarray, prediction: np.ndarray) -> np.ndarray:
+    return 0
 
 def mask_one_hot_labels(ground_truth):
     """ Given GT one hot encoded mask return bool mask for valid tokens i.e., exclude CLS SEP and PAD tokens """

@@ -1,15 +1,17 @@
-from typing import Dict, Any
-# Tensorleap imports
+from typing import Dict, Any, List
+
 from code_loader import leap_binder
 from code_loader.contract.enums import LeapDataType
 from code_loader.contract.datasetclasses import PreprocessResponse
+from code_loader.contract.visualizer_classes import LeapText
 from code_loader.inner_leap_binder.leapbinder_decorators import (tensorleap_preprocess, tensorleap_unlabeled_preprocess,
-                                                                 tensorleap_input_encoder, tensorleap_gt_encoder)
+                                                                 tensorleap_input_encoder, tensorleap_gt_encoder,
+                                                                 tensorleap_metadata, tensorleap_custom_visualizer)
 
-from llama_sentiment_analysis.dataset import load_data, downsample_hf_dataset
+from llama_sentiment_analysis.dataset import load_data, downsample_hf_dataset, get_dataset_label_map
+from llama_sentiment_analysis.llama import tokenize_and_align_labels, get_labels_ids_map, tokenizer, \
+    get_label_from_prediction
 from llama_sentiment_analysis.utils.metrics import *
-from tl.visualizers import *
-from llama_sentiment_analysis.dataset import get_dataset_label_map
 
 @tensorleap_preprocess()
 def preprocess_func() -> List[PreprocessResponse]:
@@ -82,7 +84,7 @@ def input_attention_mask(idx: int, preprocess: PreprocessResponse) -> np.ndarray
 
 # Ground truth encoder fetches the label with the index `idx` from the `labels` array set in
 # the PreprocessResponse's data. Returns a numpy array containing a hot vector label correlated with the sample.
-@tensorleap_gt_encoder(name="attention_mask")
+@tensorleap_gt_encoder(name="label_token_id")
 def gt_encoder(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
     tokenized_inputs = input_encoder(idx, preprocess)   # get tokenized labels
     labels = tokenized_inputs["labels"]
@@ -93,6 +95,26 @@ def gt_encoder(idx: int, preprocess: PreprocessResponse) -> np.ndarray:
     # gt_tensor_one_hot = tf.one_hot(token_id_label, depth=get_vocab_size()).numpy()
     return np.array(token_id_label).astype(np.float32)
 
+
+@tensorleap_metadata('metadata_sample_label')
+def metadata_sample_index(idx: int, preprocess: PreprocessResponse) -> int:
+    tokenized_inputs = input_encoder(idx, preprocess)
+    label_token_id = tokenized_inputs["labels"]
+    # TODO: return string instead of 0 1 -1
+    return int(label_token_id[0])
+
+@tensorleap_custom_visualizer('sentence_visualizer', LeapDataType.Text)
+def sentence_visualizer(input_ids_arr) -> LeapText:
+    return LeapText(tokenizer.decode(np.array(input_ids_arr[0], dtype=np.int32), skip_special_tokens=True).split(' '))
+
+@tensorleap_custom_visualizer('label_visualizer', LeapDataType.Text)
+def label_visualizer(label_token_id: np.float32) -> LeapText:
+    return LeapText([tokenizer.convert_ids_to_tokens(int(label_token_id))])
+
+@tensorleap_custom_visualizer('pred_label_visualizer', LeapDataType.Text)
+def pred_label_visualizer(attention_masks, prediction) -> LeapText:
+    pred_token_id, pred_token_text = get_label_from_prediction(attention_masks, prediction)
+    return LeapText([pred_token_text])
 
 if __name__ == "__main__":
     leap_binder.check()
