@@ -8,24 +8,6 @@ from llama_sentiment_analysis.llama import get_label_from_prediction
 
 @tensorleap_custom_metric(name="metrics")
 def calc_metrics(ground_truth: np.ndarray, attention_masks: np.ndarray, preds: np.ndarray):
-    """`
-    Calculate Accuracy, Precision, Recall, and F1 Score for NER.
-    - Total metric score
-    - Per each category class
-
-    Parameters:
-    true_labels (list of lists): True labels for each token.
-    predicted_labels (list of lists): Predicted labels for each token.
-
-    Returns:
-    dictionary with:
-        precision (float): Precision score
-        recall (float): Recall score
-        f1_score (float): F1 score
-
-        [C]_precision, [C]_recall, [C]_f1_score for any category class C: [LOC, ORG, PER, MISC]
-
-    """
     # attention_masks = attention_masks[None, ...]
     prediction, pred_token_text, last_token_index = get_label_from_prediction(attention_masks, preds)
     ground_truth = ground_truth[None, ...]
@@ -72,13 +54,6 @@ def calc_metrics(ground_truth: np.ndarray, attention_masks: np.ndarray, preds: n
     return metrics
 
 
-def shannon_entropy(prob_dist):
-    """
-    Compute Shannon entropy of a probability distribution.
-
-    :param prob_dist: List or array of probabilities.
-    :return: Shannon entropy of the distribution.
-    """
-    prob_dist = np.array(prob_dist)
-    prob_dist = prob_dist[prob_dist > 0]
-    return -np.sum(prob_dist * np.log(prob_dist))
+@tensorleap_custom_metric(name="dummy_metrics")
+def dummy_calc_metrics(ground_truth: np.ndarray):
+    return {"accuracy": 0.0, "precision": 0.0}

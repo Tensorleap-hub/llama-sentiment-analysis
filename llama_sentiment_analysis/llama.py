@@ -46,3 +46,7 @@ def CE_loss(ground_truth: np.ndarray, attention_masks: np.ndarray, preds: np.nda
     loss_val = loss(np.expand_dims(tf.one_hot(int(ground_truth[0]), depth=len(prediction)), axis=0), np.expand_dims(prediction, axis=0))
     return np.expand_dims([tf.reduce_mean(loss_val).numpy()], axis=0)
 
+@tensorleap_custom_loss(name="dummy_CE_loss")
+def dummy_CE_loss(ground_truth: np.ndarray) -> np.ndarray:
+    return 0
+

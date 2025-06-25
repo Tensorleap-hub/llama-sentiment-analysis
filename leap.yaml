@@ -13,4 +13,10 @@ include:
     - leap_test.py
     - leap_custom_test.py
     - requirements.txt
+    - llama_sentiment_analysis/data/glue_sst_train/*.json
+    - llama_sentiment_analysis/data/glue_sst_train/*.arrow
+    - llama_sentiment_analysis/data/glue_sst_val/*.json
+    - llama_sentiment_analysis/data/glue_sst_val/*.arrow
+    - llama_sentiment_analysis/data/glue_sst_test/*.json
+    - llama_sentiment_analysis/data/glue_sst_test/*.arrow
 pythonVersion: py39

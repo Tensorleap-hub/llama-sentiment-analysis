@@ -1,5 +1,6 @@
 import os
-
+import sys
+import gc
 import psutil
 from tqdm import tqdm
 
@@ -7,10 +8,10 @@ from leap_binder import *
 from llama_sentiment_analysis.llama import CE_loss
 
 
-def print_memory_usage():
+def print_memory_usage(strr = ''):
     process = psutil.Process(os.getpid())
     mem_mb = process.memory_info().rss / 1024 ** 2  # in MB
-    print(f"Current memory usage: {mem_mb:.2f} MB")
+    print(f"Current memory usage: {mem_mb:.2f} MB - {strr}")
 
 def check_custom_integration():
     LOAD_MODEL = True
@@ -42,16 +43,21 @@ def check_custom_integration():
             inputs["input_ids"] = input_ids(i, sub)[None, ...]
             inputs["position_ids"] = position_ids(i, sub)[None, ...]
             inputs["attention_mask"] = input_attention_mask(i, sub)[None, ...]
-
             attention_masks_raw = input_attention_mask_wrapped(i, sub)
-
+            print(f"*** ITER {i}")
+            print_memory_usage("before")
             pred = model(inputs)
             pred_token_id, pred_token_text, last_token_index = get_label_from_prediction(inputs["attention_mask"], pred)
 
             scores = calc_metrics(gt, attention_masks_raw, pred.numpy())
             loss = CE_loss(gt, attention_masks_raw, pred.numpy())
             print(loss, scores, tokenizer.decode(np.array(inputs["input_ids"][0], dtype=np.int), skip_special_tokens=True), tokenizer.convert_ids_to_tokens(int(gt[0])), pred_token_text)
-            print_memory_usage()
+
+            print_memory_usage("after")
+
+            # del pred
+            # gc.collect()
+            # tf.keras.backend.clear_session()
 
     print("Done")
 
