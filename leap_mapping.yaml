@@ -1,0 +1,238 @@
+decorators:
+  - operation: Input
+    data:
+      type: Input
+      output_name: input_ids
+    id: '105'
+    inputs: {}
+    outputs:
+      input_ids:
+        - inputKey: input
+          operation: Embedding
+          name: Gather_308_tl_gather_emb
+          id: '104'
+        - inputKey: input_ids_arr
+          operation: Visualizer
+          id: '3700'
+  - operation: Input
+    data:
+      type: Input
+      output_name: position_ids
+    id: '162'
+    inputs: {}
+    outputs:
+      position_ids:
+        - inputKey: '0'
+          operation: TFOpLambda
+          name: tf.identity_118
+          id: '161'
+        - inputKey: data
+          operation: Visualizer
+          id: '3701'
+  - operation: Input
+    data:
+      type: Input
+      output_name: attention_mask
+    id: '303'
+    inputs: {}
+    outputs:
+      attention_mask:
+        - inputKey: '0'
+          operation: TFOpLambda
+          name: tf.identity_119
+          id: '302'
+        - inputKey: data
+          operation: Visualizer
+          id: '3702'
+  - operation: GroundTruth
+    data:
+      type: GroundTruth
+      output_name: label_token_id
+    id: '3694'
+    inputs: {}
+    outputs:
+      label_token_id:
+        - inputKey: label_token_id
+          operation: Visualizer
+          id: '3698'
+        - inputKey: ground_truth
+          operation: Metric
+          id: '3707'
+        - inputKey: ground_truth
+          operation: CustomLoss
+          id: '3708'
+  - operation: GroundTruth
+    data:
+      type: GroundTruth
+      output_name: attention_mask_wrapped
+    id: '3695'
+    inputs: {}
+    outputs:
+      attention_mask_wrapped:
+        - inputKey: data
+          operation: Visualizer
+          id: '3704'
+        - inputKey: attention_masks
+          operation: Metric
+          id: '3707'
+        - inputKey: attention_masks
+          operation: Visualizer
+          id: '3710'
+        - inputKey: attention_masks
+          operation: CustomLoss
+          id: '3708'
+  - operation: Visualizer
+    data:
+      type: Visualizer
+      name: gt_label_visualizer
+      visualizer_name: gt_label_visualizer
+      visualizer_type: Text
+      arg_names:
+        - label_token_id
+      user_unique_name: gt_label_visualizer
+    id: '3698'
+    inputs:
+      label_token_id:
+        - outputKey: label_token_id
+          operation: GroundTruth
+          id: '3694'
+    outputs: {}
+  - operation: Visualizer
+    data:
+      type: Visualizer
+      name: sentence_visualizer
+      visualizer_name: sentence_visualizer
+      visualizer_type: Text
+      arg_names:
+        - input_ids_arr
+      user_unique_name: sentence_visualizer
+    id: '3700'
+    inputs:
+      input_ids_arr:
+        - outputKey: input_ids
+          operation: Input
+          id: '105'
+    outputs: {}
+  - operation: Visualizer
+    data:
+      type: Visualizer
+      name: RawData
+      visualizer_name: RawData
+      visualizer_type: Text
+      arg_names:
+        - data
+      user_unique_name: RawData
+    id: '3701'
+    inputs:
+      data:
+        - outputKey: position_ids
+          operation: Input
+          id: '162'
+    outputs: {}
+  - operation: Visualizer
+    data:
+      type: Visualizer
+      name: RawData
+      visualizer_name: RawData
+      visualizer_type: Text
+      arg_names:
+        - data
+      user_unique_name: RawData
+    id: '3702'
+    inputs:
+      data:
+        - outputKey: attention_mask
+          operation: Input
+          id: '303'
+    outputs: {}
+  - operation: Visualizer
+    data:
+      type: Visualizer
+      name: RawData
+      visualizer_name: RawData
+      visualizer_type: Text
+      arg_names:
+        - data
+      user_unique_name: attn_mask_wr
+    id: '3704'
+    inputs:
+      data:
+        - outputKey: attention_mask_wrapped
+          operation: GroundTruth
+          id: '3695'
+    outputs: {}
+  - operation: Metric
+    data:
+      type: Metric
+      name: metrics
+      metric_name: metrics
+      arg_names:
+        - ground_truth
+        - attention_masks
+        - preds
+      user_unique_name: metrics
+    id: '3707'
+    inputs:
+      preds:
+        - outputKey: feature_map
+          operation: Dense
+          name: MatMul_4227_tl_gemm_dense
+          id: '1'
+      ground_truth:
+        - outputKey: label_token_id
+          operation: GroundTruth
+          id: '3694'
+      attention_masks:
+        - outputKey: attention_mask_wrapped
+          operation: GroundTruth
+          id: '3695'
+    outputs: {}
+  - operation: CustomLoss
+    data:
+      arg_names:
+        - ground_truth
+        - attention_masks
+        - preds
+      user_unique_name: CE_loss
+      name: CE_loss
+      selected: CE_loss
+      type: CustomLoss
+    id: '3708'
+    inputs:
+      preds:
+        - outputKey: feature_map
+          operation: Dense
+          name: MatMul_4227_tl_gemm_dense
+          id: '1'
+      ground_truth:
+        - outputKey: label_token_id
+          operation: GroundTruth
+          id: '3694'
+      attention_masks:
+        - outputKey: attention_mask_wrapped
+          operation: GroundTruth
+          id: '3695'
+    outputs: {}
+  - operation: Visualizer
+    data:
+      type: Visualizer
+      name: pred_label_visualizer
+      visualizer_name: pred_label_visualizer
+      visualizer_type: Text
+      arg_names:
+        - attention_masks
+        - prediction
+      user_unique_name: pred_label_visualizer
+    id: '3710'
+    inputs:
+      prediction:
+        - outputKey: feature_map
+          operation: Dense
+          name: MatMul_4227_tl_gemm_dense
+          id: '1'
+      attention_masks:
+        - outputKey: attention_mask_wrapped
+          operation: GroundTruth
+          id: '3695'
+    outputs: {}
+layers: []
